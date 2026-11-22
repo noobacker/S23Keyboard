@@ -8,8 +8,8 @@ settings:
     SWIFT_VERSION: '5.0'
     TARGETED_DEVICE_FAMILY: '1'
     CODE_SIGN_STYLE: Automatic
-    CURRENT_PROJECT_VERSION: 4
-    MARKETING_VERSION: '0.3.1'
+    CURRENT_PROJECT_VERSION: 5
+    MARKETING_VERSION: '0.4.0'
 targets:
   S23Keyboard:
     type: application
@@ -34,6 +34,7 @@ targets:
       path: App/Info.plist
       properties:
         CFBundleDisplayName: S23 Style Keyboard
+        NSPhotoLibraryUsageDescription: Import new screenshots into private clipboard history when S23 is open. Saved clipboard copies are not added to Photos.
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         UILaunchScreen: {}
@@ -55,6 +56,7 @@ targets:
       path: Keyboard/Info.plist
       properties:
         CFBundleDisplayName: S23 Style
+        NSPhotoLibraryUsageDescription: Import new screenshots into private clipboard history when S23 is visible.
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         NSExtension:

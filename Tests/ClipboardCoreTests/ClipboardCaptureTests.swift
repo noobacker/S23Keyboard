@@ -3,6 +3,17 @@ import Testing
 @testable import ClipboardCore
 
 struct ClipboardCaptureTests {
+    @Test func screenshotCatchupKeepsIdsAcrossReopen() throws {
+        let start = Date(timeIntervalSince1970: 100)
+        var checkpoint = ScreenshotCheckpoint(startingAt: start)
+        let next = start.addingTimeInterval(1)
+        #expect(!checkpoint.shouldImport(id: "old", createdAt: start.addingTimeInterval(-1)))
+        #expect(checkpoint.shouldImport(id: "new", createdAt: next))
+        checkpoint.record(id: "new", createdAt: next)
+        let restored = try JSONDecoder().decode(ScreenshotCheckpoint.self, from: JSONEncoder().encode(checkpoint))
+        #expect(!restored.shouldImport(id: "new", createdAt: next))
+        #expect(restored.shouldImport(id: "other", createdAt: next))
+    }
     @Test func deniedReadIsNotRepeatedByTimerButCanRetryOnNextOpen() {
         var state = ClipboardCaptureState()
         #expect(state.shouldRead(change: 10, automaticSaving: true))

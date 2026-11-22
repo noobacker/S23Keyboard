@@ -1,24 +1,40 @@
 import UIKit
 import UniformTypeIdentifiers
+import AVFoundation
 
 final class ClickInputView: UIInputView, UIInputViewAudioFeedback {
+    var typingKeys: [KeyButton] = []
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        let hit = super.hitTest(point, with: event)
+        if hit is UIControl || hit?.superview is UIControl { return hit }
+        guard bounds.contains(point), !typingKeys.isEmpty else { return hit }
+        return typingKeys.filter { $0.convert($0.bounds, to: self).insetBy(dx: -10, dy: -10).contains(point) }
+            .min { a, b in
+                let ac = a.convert(CGPoint(x: a.bounds.midX, y: a.bounds.midY), to: self)
+                let bc = b.convert(CGPoint(x: b.bounds.midX, y: b.bounds.midY), to: self)
+                return hypot(ac.x - point.x, ac.y - point.y) < hypot(bc.x - point.x, bc.y - point.y)
+            } ?? hit
+    }
     var enableInputClicksWhenVisible: Bool { UserDefaults.standard.object(forKey: "sound") as? Bool ?? true }
 }
 
 // Native UIKit styling; iOS renders emoji with its own emoji font.
 private enum KeyboardStyle {
     static let background = UIColor { $0.userInterfaceStyle == .dark
-        ? UIColor(white: 0.12, alpha: 1) : UIColor(red: 0.82, green: 0.83, blue: 0.85, alpha: 1) }
+        ? .black : UIColor(red: 0.89, green: 0.90, blue: 0.92, alpha: 1) }
     static let key = UIColor { $0.userInterfaceStyle == .dark
-        ? UIColor(white: 0.34, alpha: 1) : .white }
+        ? UIColor(white: 0.224, alpha: 1) : .white }
     static let utility = UIColor { $0.userInterfaceStyle == .dark
-        ? UIColor(white: 0.24, alpha: 1) : UIColor(red: 0.68, green: 0.70, blue: 0.73, alpha: 1) }
+        ? UIColor(white: 0.09, alpha: 1) : UIColor(red: 0.76, green: 0.78, blue: 0.81, alpha: 1) }
     static let pressed = UIColor { $0.userInterfaceStyle == .dark
         ? UIColor(white: 0.49, alpha: 1) : UIColor(red: 0.70, green: 0.75, blue: 0.83, alpha: 1) }
     static let secondary = UIColor { $0.userInterfaceStyle == .dark ? UIColor(white: 0.8, alpha: 1) : UIColor(white: 0.25, alpha: 1) }
 }
 
 final class KeyButton: UIButton {
+    override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+        bounds.insetBy(dx: -4, dy: -6).contains(point)
+    }
     var highlightEnabled = true
     var previewText: String?
     var alternatives: [String] = []
@@ -48,7 +64,7 @@ final class KeyButton: UIButton {
     }
 }
 
-final class KeyboardViewController: UIInputViewController {
+final class KeyboardViewController: UIInputViewController, UIGestureRecognizerDelegate {
     private let defaults = UserDefaults.standard
     private let root = UIStackView()
     private var heightConstraint: NSLayoutConstraint?
@@ -69,6 +85,15 @@ final class KeyboardViewController: UIInputViewController {
     private var editingClips = false
     private var clipboardMessage = ""
     private var spaceOrigin: CGFloat = 0
+    private var cursorOrigin = CGPoint.zero
+    private var cursorOverlay: UIView?
+    private var swipeSamples: [SwipePoint] = []
+    private var swipeCenters: [String: SwipePoint] = [:]
+    private var swipeCandidates: [String] = []
+    private var lastSwipeWord = ""
+    private var swipePendingCapital = false
+    private var clickPlayer: AVAudioPlayer?
+    private var letterButtons: [KeyButton] = []
     private var panelStack: UIStackView?
     private var landscape = false
     weak var testTextView: UITextView?
@@ -78,7 +103,7 @@ final class KeyboardViewController: UIInputViewController {
     }
     private var keyHeight: CGFloat {
         let value = defaults.double(forKey: "keyHeight")
-        return landscape ? 32 : min(52, max(38, value == 0 ? 43 : CGFloat(value)))
+        return landscape ? 34 : min(58, max(40, value == 0 ? 47 : CGFloat(value)))
     }
 
     override func loadView() {
@@ -87,21 +112,29 @@ final class KeyboardViewController: UIInputViewController {
     }
     override func viewDidLoad() {
         super.viewDidLoad()
-        defaults.register(defaults: ["haptics": true, "sound": true, "strength": 0.65, "keyPreview": true])
+        defaults.register(defaults: ["haptics": true, "sound": true, "strength": 0.7, "keyPreview": true, "soundVolume": 0.7, "swipeTyping": true])
+        applyTheme()
+        configureClickSound()
+        history.didChange = { [weak self] in
+            guard let self, self.isViewLoaded else { return }
+            if self.panel == "clipboard" || self.panel == "settings" { self.render() }
+        }
         view.backgroundColor = KeyboardStyle.background
         root.axis = .vertical
-        root.spacing = 10
+        root.spacing = 12
         root.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(root)
         NSLayoutConstraint.activate([
             root.topAnchor.constraint(equalTo: view.topAnchor, constant: 6),
-            root.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 5),
-            root.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -5),
+            root.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8),
+            root.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -8),
             root.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor, constant: -4)
         ])
         heightConstraint = view.heightAnchor.constraint(equalToConstant: 360)
         heightConstraint?.priority = .defaultHigh
         heightConstraint?.isActive = true
+        let swipe = UIPanGestureRecognizer(target: self, action: #selector(swipeTyping(_:)))
+        swipe.delegate = self; swipe.cancelsTouchesInView = true; view.addGestureRecognizer(swipe)
         render()
     }
     override func viewWillDisappear(_ animated: Bool) {
@@ -129,10 +162,14 @@ final class KeyboardViewController: UIInputViewController {
     private func captureClipboard(force: Bool = false) {
         let old = history.message
         let changed = history.capture(allowed: clipboardAccess, force: force)
+        history.syncScreenshots(allowed: clipboardAccess)
         if panel == "clipboard" && (changed || old != history.message || force) { render() }
     }
     private func feedback() {
-        if defaults.bool(forKey: "sound") { UIDevice.current.playInputClick() }
+        if defaults.bool(forKey: "sound") {
+            clickPlayer?.volume = defaults.float(forKey: "soundVolume")
+            clickPlayer?.currentTime = 0; clickPlayer?.play()
+        }
         if defaults.bool(forKey: "haptics") {
             let strength = defaults.double(forKey: "strength")
             impact.impactOccurred(intensity: min(1, max(0.1, strength)))
@@ -140,7 +177,8 @@ final class KeyboardViewController: UIInputViewController {
         }
     }
     private func clearRoot() {
-        stopDeleting(); hideCallout(); panelStack = nil
+        stopDeleting(); hideCallout(); panelStack = nil; letterButtons = []
+        (view as? ClickInputView)?.typingKeys = []
         root.arrangedSubviews.forEach { root.removeArrangedSubview($0); $0.removeFromSuperview() }
     }
     private func row(height: CGFloat) -> UIStackView {
@@ -157,14 +195,14 @@ final class KeyboardViewController: UIInputViewController {
         key.highlightEnabled = highlights
         key.restingColor = ["⇧", "⇪", "⌫", "!#1", "ABC", "↵", "Search", "Send", "Go", "Done"].contains(title)
             ? KeyboardStyle.utility : KeyboardStyle.key
-        key.layer.cornerRadius = 6
+        key.layer.cornerRadius = 8
         key.layer.shadowColor = UIColor.black.cgColor
-        key.layer.shadowOpacity = 0.22
+        key.layer.shadowOpacity = 0
         key.layer.shadowOffset = CGSize(width: 0, height: 1)
         key.layer.shadowRadius = 0.5
         key.setTitle(title, for: .normal)
         key.setTitleColor(.label, for: .normal)
-        key.titleLabel?.font = .systemFont(ofSize: title.count > 3 ? 14 : 25, weight: .regular)
+        key.titleLabel?.font = .systemFont(ofSize: title.count > 3 ? 14 : 26, weight: .regular)
         key.accessibilityLabel = title
         key.beganTouch = { [weak self] key in self?.feedback(); self?.showPreview(key) }
         key.endedTouch = { [weak self] in self?.hideCallout() }
@@ -250,6 +288,7 @@ final class KeyboardViewController: UIInputViewController {
         for (position, label) in alternateLabels.enumerated() { label.backgroundColor = position == index ? KeyboardStyle.pressed : .clear }
     }
     private func insert(_ text: String) {
+        lastSwipeWord = ""
         if let testTextView { testTextView.insertText(text) } else { textDocumentProxy.insertText(text) }
         if shift && !capsLock { shift = false; render() }
     }
@@ -261,18 +300,74 @@ final class KeyboardViewController: UIInputViewController {
            let position = textView.position(from: range.start, offset: offset) { textView.selectedTextRange = textView.textRange(from: position, to: position) }
         else if testTextView == nil { textDocumentProxy.adjustTextPosition(byCharacterOffset: offset) }
     }
+    private func applyTheme() {
+        switch defaults.string(forKey: "keyboardTheme") ?? "auto" {
+        case "light": overrideUserInterfaceStyle = .light
+        case "dark": overrideUserInterfaceStyle = .dark
+        default: overrideUserInterfaceStyle = .unspecified
+        }
+    }
+    private func configureClickSound() {
+        // Original short mechanical click, synthesized locally; no Samsung recording.
+        let rate = 22050, count = 800
+        var samples = Data()
+        for index in 0..<count {
+            let time = Double(index) / Double(rate)
+            let envelope = exp(-time * 240)
+            let wave = sin(time * 2 * .pi * 1700) * 0.65 + sin(time * 2 * .pi * 3400) * 0.25
+            var value = Int16(max(-32767, min(32767, wave * envelope * 22000))).littleEndian
+            withUnsafeBytes(of: &value) { samples.append(contentsOf: $0) }
+        }
+        var data = Data()
+        func text(_ value: String) { data.append(contentsOf: value.utf8) }
+        func u32(_ value: UInt32) { var value = value.littleEndian; withUnsafeBytes(of: &value) { data.append(contentsOf: $0) } }
+        func u16(_ value: UInt16) { var value = value.littleEndian; withUnsafeBytes(of: &value) { data.append(contentsOf: $0) } }
+        text("RIFF"); u32(UInt32(36 + samples.count)); text("WAVEfmt "); u32(16); u16(1); u16(1)
+        u32(UInt32(rate)); u32(UInt32(rate * 2)); u16(2); u16(16); text("data"); u32(UInt32(samples.count)); data.append(samples)
+        clickPlayer = try? AVAudioPlayer(data: data, fileTypeHint: AVFileType.wav.rawValue)
+        clickPlayer?.prepareToPlay()
+    }
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        guard panel == "keys", !symbols, defaults.bool(forKey: "swipeTyping") else { return false }
+        let point = touch.location(in: view)
+        return letterButtons.contains { $0.convert($0.bounds, to: view).contains(point) }
+    }
+    @objc private func swipeTyping(_ gesture: UIPanGestureRecognizer) {
+        let point = gesture.location(in: view)
+        let width = max(1, view.bounds.width)
+        let sample = SwipePoint(x: Double(point.x / width), y: Double(point.y / width))
+        if gesture.state == .began {
+            hideCallout(); swipeSamples = []
+            swipePendingCapital = shift
+            swipeCenters = Dictionary(uniqueKeysWithValues: letterButtons.compactMap { key in
+                guard let letter = key.previewText?.lowercased() else { return nil }
+                let center = key.convert(CGPoint(x: key.bounds.midX, y: key.bounds.midY), to: view)
+                return (letter, SwipePoint(x: Double(center.x / width), y: Double(center.y / width)))
+            })
+            let start = CGPoint(x: point.x - gesture.translation(in: view).x, y: point.y - gesture.translation(in: view).y)
+            swipeSamples.append(SwipePoint(x: Double(start.x / width), y: Double(start.y / width)))
+        }
+        swipeSamples.append(sample)
+        if gesture.state == .ended {
+            swipeCandidates = SwipeDecoder().suggestions(for: swipeSamples, keyCenters: swipeCenters, limit: 3)
+            if let word = swipeCandidates.first {
+                let output = swipePendingCapital ? word.prefix(1).uppercased() + word.dropFirst() : word
+                insert(output + " "); lastSwipeWord = output + " "; feedback(); render()
+            }
+        } else if gesture.state == .cancelled || gesture.state == .failed { swipeSamples = [] }
+    }
     private func toolbar() {
         let bar = row(height: 44)
-        for (title, icon, destination) in [("Emoji", KeyboardIcon.emoji, "emoji"), ("Clipboard", .clipboard, "clipboard"), ("Cursor", .cursor, "cursor"), ("Settings", .settings, "settings"), ("More", .more, "more")] {
+        for (title, icon, destination) in [("Clipboard", KeyboardIcon.clipboard, "clipboard"), ("Settings", .settings, "settings")] {
             let key = button(title) { [weak self] in
                 guard let self else { return }; self.panel = self.panel == destination ? "keys" : destination
                 if self.panel == "clipboard" { self.history.beginPresentation(); self.history.capture(allowed: self.clipboardAccess) }
                 self.render()
             }
             var config = UIButton.Configuration.plain(); config.image = icon.image; config.title = title
-            config.imagePlacement = .top; config.imagePadding = 2; config.contentInsets = .zero
+            config.imagePlacement = .leading; config.imagePadding = 8; config.contentInsets = .zero
             config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { attributes in
-                var attributes = attributes; attributes.font = .systemFont(ofSize: 10, weight: .medium); return attributes
+                var attributes = attributes; attributes.font = .systemFont(ofSize: 14, weight: .medium); return attributes
             }
             config.baseForegroundColor = .label; key.configuration = config
             key.restingColor = panel == destination ? KeyboardStyle.utility : .clear
@@ -284,6 +379,17 @@ final class KeyboardViewController: UIInputViewController {
         clearRoot()
         heightConstraint?.constant = 5 * keyHeight + 134
         toolbar()
+        if panel == "keys" {
+            let suggestions = row(height: 28)
+            for word in swipeCandidates.isEmpty ? ["I", "the", "and"] : swipeCandidates {
+                let key = button(word) { [weak self] in
+                    guard let self else { return }
+                    if !self.lastSwipeWord.isEmpty { for _ in self.lastSwipeWord { self.deleteCharacter() } }
+                    self.insert(word + " "); self.lastSwipeWord = ""
+                }
+                key.restingColor = .clear; key.titleLabel?.font = .systemFont(ofSize: 15); suggestions.addArrangedSubview(key)
+            }
+        }
         switch panel {
         case "settings": settingsPanel()
         case "clipboard": clipboardPanel()
@@ -293,25 +399,6 @@ final class KeyboardViewController: UIInputViewController {
         default: keys()
         }
         panelStack = nil
-        let footer = row(height: 28)
-        let globe = KeyButton(type: .custom)
-        globe.setImage(KeyboardIcon.globe.image, for: .normal); globe.tintColor = .label
-        globe.restingColor = .clear
-        globe.accessibilityLabel = "Next keyboard"
-        if testTextView == nil { globe.addTarget(self, action: #selector(handleInputModeList(from:with:)), for: .allTouchEvents) }
-        else {
-            globe.accessibilityLabel = "Back to typing test"
-            globe.addAction(UIAction { [weak self] _ in self?.panel = "keys"; self?.render() }, for: .touchUpInside)
-        }
-        // UIKit handles globe taps and the hold-to-choose keyboard menu.
-        footer.addArrangedSubview(globe)
-        let backKey = button("⌄") { [weak self] in
-            guard let self else { return }
-            if self.panel != "keys" || self.testTextView != nil { self.panel = "keys"; self.render() } else { self.dismissKeyboard() }
-        }
-        backKey.accessibilityLabel = panel == "keys" ? "Hide keyboard" : "Back to keyboard"
-        if panel != "keys" { backKey.setImage(KeyboardIcon.keyboard.image, for: .normal) }
-        footer.addArrangedSubview(backKey)
     }
     private func keys() {
         let numbers = row(height: keyHeight - 8)
@@ -321,7 +408,7 @@ final class KeyboardViewController: UIInputViewController {
             key.previewText = value; key.titleLabel?.font = .systemFont(ofSize: 20); numbers.addArrangedSubview(key)
         }
         let letters = symbols
-            ? (secondSymbols ? ["~`|•√π÷×¶∆", "£¢€¥^°={}\\", "%©®™✓[]"] : ["@#$%&*-+()", "_\"':;!?/=", "<>€£¥•\\"])
+            ? (secondSymbols ? ["`~\\|{}€£¥$", "°•○●□■♤♡♢♧", "☆▪¤《》¡¿"] : ["+×÷=/_<>[]", "!@#₹%^&*()", "-'\":;,?"])
             : ["qwertyuiop", "asdfghjkl", "zxcvbnm"]
         let hints = [Array("+×÷=_<>[]"), Array("!@#£%&*()"), Array("-\"':;!?/")]
         let accents = ["a": ["à", "á", "â", "ä", "æ", "ã", "å"], "e": ["è", "é", "ê", "ë"], "i": ["ì", "í", "î", "ï"], "o": ["ò", "ó", "ô", "ö", "ø"], "u": ["ù", "ú", "û", "ü"], "c": ["ç"], "n": ["ñ"], "s": ["ß"]]
@@ -329,12 +416,12 @@ final class KeyboardViewController: UIInputViewController {
             let stack = row(height: keyHeight)
             stack.distribution = .fill
             var characterKeys: [UIView] = []
-            if index == 1 {
+            if index == 1 && !symbols {
                 let spacer = UIView(); stack.addArrangedSubview(spacer)
                 spacer.widthAnchor.constraint(equalTo: stack.widthAnchor, multiplier: 0.035).isActive = true
             }
             if index == 2 {
-                let key = button(symbols ? (secondSymbols ? "1/2" : "2/2") : (capsLock ? "⇪" : "⇧")) { [weak self] in
+                let key = button(symbols ? (secondSymbols ? "2/2" : "1/2") : (capsLock ? "⇪" : "⇧")) { [weak self] in
                     guard let self = self else { return }
                     if self.symbols { self.secondSymbols.toggle() }
                     else if self.shift { self.capsLock.toggle(); self.shift = self.capsLock }
@@ -349,16 +436,18 @@ final class KeyboardViewController: UIInputViewController {
             for (column, character) in line.enumerated() {
                 let value = String(character)
                 let output = !symbols && shift ? value.uppercased() : value
-                let hint = !symbols && column < hints[index].count ? String(hints[index][column]) : nil
+                let hint: String? = nil
                 let key = button(output, hint: hint) { [weak self] in self?.insert(output) }
                 key.previewText = output
                 if !symbols { key.alternatives += (accents[value] ?? []).map { shift ? $0.uppercased() : $0 } }
+                if !symbols && column < hints[index].count { key.alternatives.insert(String(hints[index][column]), at: 0) }
                 addHold(to: key); stack.addArrangedSubview(key); characterKeys.append(key)
+                if !symbols { letterButtons.append(key) }
             }
             if let first = characterKeys.first {
                 for key in characterKeys.dropFirst() { key.widthAnchor.constraint(equalTo: first.widthAnchor).isActive = true }
             }
-            if index == 1 {
+            if index == 1 && !symbols {
                 let spacer = UIView(); stack.addArrangedSubview(spacer)
                 spacer.widthAnchor.constraint(equalTo: stack.widthAnchor, multiplier: 0.035).isActive = true
             }
@@ -375,7 +464,7 @@ final class KeyboardViewController: UIInputViewController {
         bottom.distribution = .fill
         bottom.addArrangedSubview(button(symbols ? "ABC" : "!#1") { [weak self] in self?.symbols.toggle(); self?.render() })
         bottom.addArrangedSubview(button(",") { [weak self] in self?.insert(",") })
-        let space = button("English (UK)") { [weak self] in self?.insert(" ") }
+        let space = button("English(India)") { [weak self] in self?.insert(" ") }
         space.accessibilityLabel = "Space"
         space.accessibilityHint = "Hold and slide to move the cursor"
         let hold = UILongPressGestureRecognizer(target: self, action: #selector(holdSpace(_:)))
@@ -394,16 +483,56 @@ final class KeyboardViewController: UIInputViewController {
         for key in bottom.arrangedSubviews where key !== space {
             key.widthAnchor.constraint(equalTo: bottom.widthAnchor, multiplier: 0.12).isActive = true
         }
+        func collect(_ view: UIView) -> [KeyButton] {
+            if let key = view as? KeyButton { return [key] }
+            return view.subviews.flatMap(collect)
+        }
+        (view as? ClickInputView)?.typingKeys = root.arrangedSubviews.dropFirst(2).flatMap(collect)
     }
     @objc private func holdSpace(_ gesture: UILongPressGestureRecognizer) {
         guard let key = gesture.view as? KeyButton else { return }
         if gesture.state == .began {
-            key.suppressedTap = true; spaceOrigin = gesture.location(in: view).x
-            feedback(); key.setTitle("Slide to move cursor", for: .normal)
+            key.suppressedTap = true; cursorOrigin = gesture.location(in: view)
+            feedback(); showCursorOverlay()
         } else if gesture.state == .changed {
-            let x = gesture.location(in: view).x; let steps = Int((x - spaceOrigin) / 10)
-            if steps != 0 { moveCursor(steps); spaceOrigin += CGFloat(steps) * 10 }
-        } else if [.ended, .cancelled, .failed].contains(gesture.state) { key.setTitle("English (UK)", for: .normal) }
+            let point = gesture.location(in: view)
+            let horizontal = Int((point.x - cursorOrigin.x) / 9)
+            let vertical = Int((point.y - cursorOrigin.y) / 24)
+            if vertical != 0 { moveVertical(vertical); cursorOrigin.y += CGFloat(vertical) * 24 }
+            if horizontal != 0 { moveCursor(horizontal); cursorOrigin.x += CGFloat(horizontal) * 9 }
+        } else if [.ended, .cancelled, .failed].contains(gesture.state) {
+            cursorOverlay?.removeFromSuperview(); cursorOverlay = nil
+        }
+    }
+    private func showCursorOverlay() {
+        let overlay = UIView(frame: view.bounds); overlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        overlay.backgroundColor = UIColor.black.withAlphaComponent(0.75); overlay.isUserInteractionEnabled = false
+        let label = UILabel(); label.text = "↕  ↔\nCursor control"; label.numberOfLines = 2; label.textAlignment = .center
+        label.textColor = .white; label.font = .systemFont(ofSize: 22, weight: .medium); label.translatesAutoresizingMaskIntoConstraints = false
+        overlay.addSubview(label); NSLayoutConstraint.activate([label.centerXAnchor.constraint(equalTo: overlay.centerXAnchor), label.centerYAnchor.constraint(equalTo: overlay.centerYAnchor)])
+        view.addSubview(overlay); cursorOverlay = overlay
+    }
+    private func moveVertical(_ lines: Int) {
+        if let textView = testTextView, let selected = textView.selectedTextRange {
+            let rect = textView.caretRect(for: selected.start)
+            let point = CGPoint(x: rect.midX, y: rect.midY + CGFloat(lines) * (textView.font?.lineHeight ?? 24))
+            if let position = textView.closestPosition(to: point) { textView.selectedTextRange = textView.textRange(from: position, to: position) }
+            return
+        }
+        // The host exposes context, not screen coordinates: preserve the logical line column.
+        let before = textDocumentProxy.documentContextBeforeInput ?? ""
+        let after = textDocumentProxy.documentContextAfterInput ?? ""
+        let column = before.split(separator: "\n", omittingEmptySubsequences: false).last?.count ?? 0
+        if lines < 0 {
+            let previous = before.split(separator: "\n", omittingEmptySubsequences: false)
+            guard previous.count > 1 else { return }
+            let length = previous[previous.count - 2].count
+            moveCursor(-(column + 1 + length - min(column, length)))
+        } else {
+            let next = after.split(separator: "\n", omittingEmptySubsequences: false)
+            guard next.count > 1 else { return }
+            moveCursor(next[0].count + 1 + min(column, next[1].count))
+        }
     }
     @objc private func startDeleting(_ key: KeyButton) {
         stopDeleting()
@@ -435,6 +564,7 @@ final class KeyboardViewController: UIInputViewController {
             self?.defaults.set(control?.isOn ?? false, forKey: key)
             if key == "haptics" { self?.feedback() }
             if key == "autoSaveClips" { self?.captureClipboard() }
+            if key == "screenshotSaving" { self?.history.setScreenshotSaving(control?.isOn ?? false) }
         }, for: .valueChanged)
         stack.distribution = .fill; stack.addArrangedSubview(label); stack.addArrangedSubview(control)
     }
@@ -456,21 +586,34 @@ final class KeyboardViewController: UIInputViewController {
         scroll.addSubview(list)
         NSLayoutConstraint.activate([
             list.topAnchor.constraint(equalTo: scroll.contentLayoutGuide.topAnchor), list.bottomAnchor.constraint(equalTo: scroll.contentLayoutGuide.bottomAnchor),
-            list.leadingAnchor.constraint(equalTo: scroll.contentLayoutGuide.leadingAnchor), list.trailingAnchor.constraint(equalTo: scroll.contentLayoutGuide.trailingAnchor),
-            list.widthAnchor.constraint(equalTo: scroll.frameLayoutGuide.widthAnchor)
+            list.leadingAnchor.constraint(equalTo: scroll.contentLayoutGuide.leadingAnchor, constant: 20), list.trailingAnchor.constraint(equalTo: scroll.contentLayoutGuide.trailingAnchor, constant: -20),
+            list.widthAnchor.constraint(equalTo: scroll.frameLayoutGuide.widthAnchor, constant: -40)
         ])
         panelStack = list
     }
     private func settingsPanel() {
         beginScrollablePanel()
+        note("Appearance")
+        let appearance = UISegmentedControl(items: ["Light", "Dark", "Auto"])
+        appearance.selectedSegmentIndex = ["light", "dark", "auto"].firstIndex(of: defaults.string(forKey: "keyboardTheme") ?? "auto") ?? 2
+        appearance.accessibilityLabel = "Keyboard appearance"
+        appearance.addAction(UIAction { [weak self, weak appearance] _ in
+            guard let self, let index = appearance?.selectedSegmentIndex else { return }
+            self.defaults.set(["light", "dark", "auto"][index], forKey: "keyboardTheme"); self.applyTheme(); self.render()
+        }, for: .valueChanged)
+        panelStack?.addArrangedSubview(appearance)
         if !clipboardAccess { note("Allow Full Access in iPhone Settings for clipboard capture and keyboard haptics. This build has no network service.") }
         toggle("Tap highlight", key: "highlights", value: highlights)
         toggle("Character preview", key: "keyPreview", value: defaults.bool(forKey: "keyPreview"))
         toggle("Key sound", key: "sound", value: defaults.bool(forKey: "sound"))
         toggle("Haptics", key: "haptics", value: defaults.bool(forKey: "haptics"))
         toggle("Auto-save copied items", key: "autoSaveClips", value: history.automatic)
+        toggle("Swipe to type", key: "swipeTyping", value: defaults.bool(forKey: "swipeTyping"))
+        toggle("Save screenshots", key: "screenshotSaving", value: defaults.bool(forKey: "screenshotSaving"))
+        note("Screenshots import while this keyboard is visible, after Photos access is granted. iOS does not permit clipboard monitoring while the keyboard is closed.")
+        slider("Click volume", key: "soundVolume", value: defaults.float(forKey: "soundVolume"), range: 0...1)
         slider("Haptic strength", key: "strength", value: defaults.object(forKey: "strength") == nil ? 0.5 : defaults.float(forKey: "strength"), range: 0.1...1)
-        slider("Key height", key: "keyHeight", value: Float(keyHeight), range: 38...52)
+        slider("Key height", key: "keyHeight", value: Float(keyHeight), range: 40...58)
         row(height: 44).addArrangedSubview(button("Test feedback") { [weak self] in self?.feedback() })
         back()
     }
@@ -526,9 +669,17 @@ final class KeyboardViewController: UIInputViewController {
         if editingClips { history.remove(clip); render(); return }
         if let text = clip.text { insert(text) }
         else if clipboardAccess, let data = try? history.store?.imageData(for: clip) {
-            UIPasteboard.general.setData(data, forPasteboardType: UTType.png.identifier)
-            history.remember(UIPasteboard.general.changeCount)
-            clipboardMessage = "Image copied. Hold the destination text field and choose Paste."; render()
+            if let testTextView, let image = UIImage(data: data) {
+                let attachment = NSTextAttachment(); attachment.image = image
+                attachment.bounds = CGRect(x: 0, y: 0, width: 90, height: 90 * image.size.height / max(1, image.size.width))
+                let range = testTextView.selectedRange
+                testTextView.textStorage.replaceCharacters(in: range, with: NSAttributedString(attachment: attachment))
+                testTextView.selectedRange = NSRange(location: range.location + 1, length: 0)
+            } else {
+                _ = history.prepareImage(clip)
+                clipboardMessage = "Image ready. Hold the destination field and choose Paste. iOS keyboards cannot insert an image directly."
+            }
+            render()
         }
     }
     private func emojiPanel() {

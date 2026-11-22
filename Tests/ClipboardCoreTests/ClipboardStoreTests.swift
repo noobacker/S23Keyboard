@@ -10,16 +10,15 @@ final class ClipboardStoreTests {
     }
     deinit { try? FileManager.default.removeItem(at: folder) }
 
-    @Test func fiftyFirstCopyEvictsOnlyOldest() throws {
+    @Test func fiftyFirstCopyPreservesEveryExistingItem() throws {
         let store = try ClipboardStore(directory: folder)
         for index in 1...50 { try store.add(text: "clip \(index)") }
         let oldIDs = Set(store.clips.map(\.id))
-        let oldestID = try #require(store.clips.last?.id)
-        try store.add(text: "clip 51")
+        #expect(throws: ClipboardError.full) { try store.add(text: "clip 51") }
         #expect(store.clips.count == 50)
-        #expect(store.clips.first?.text == "clip 51")
-        #expect(store.clips.last?.text == "clip 2")
-        #expect(oldIDs.subtracting(store.clips.map(\.id)) == [oldestID])
+        #expect(store.clips.first?.text == "clip 50")
+        #expect(store.clips.last?.text == "clip 1")
+        #expect(Set(store.clips.map(\.id)) == oldIDs)
     }
 
     @Test func textAndImageSurviveRelaunchWithoutExpiry() throws {
@@ -34,14 +33,15 @@ final class ClipboardStoreTests {
         #expect(reopened.clips.last?.text == "hello 🌍\nsecond line")
     }
 
-    @Test func mixedItemEvictionDeletesOnlyExpiredPayload() throws {
+    @Test func fullMixedHistoryPreservesImagesAndRejectsNewPayload() throws {
         let store = try ClipboardStore(directory: folder)
         let old = try store.add(png: Data([1]))
         let retained = try store.add(png: Data([2]))
         let unrelated = folder.appendingPathComponent("keep.txt")
         try Data([3]).write(to: unrelated)
-        for index in 0..<49 { try store.add(text: "\(index)") }
-        #expect(throws: (any Error).self) { try store.imageData(for: old) }
+        for index in 0..<48 { try store.add(text: "\(index)") }
+        #expect(throws: ClipboardError.full) { try store.add(png: Data([4])) }
+        #expect(try store.imageData(for: old) == Data([1]))
         #expect(try store.imageData(for: retained) == Data([2]))
         #expect(FileManager.default.fileExists(atPath: unrelated.path))
     }

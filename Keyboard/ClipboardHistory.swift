@@ -1,6 +1,7 @@
 import UIKit
 import ImageIO
 import UniformTypeIdentifiers
+import Photos
 
 /// Uses ClipKey's capture state and storage. Only watches while the keyboard is visible.
 final class ClipboardHistory {
@@ -8,6 +9,10 @@ final class ClipboardHistory {
     private(set) var store: ClipboardStore?
     private var state: ClipboardCaptureState
     private(set) var message = ""
+    private var writingPasteboard = false
+    private var screenshotBusy = false
+    private let ownImageMarker = "com.harshal.s23.saved-image"
+    var didChange: (() -> Void)?
     var clips: [Clip] { store?.clips ?? [] }
     var automatic: Bool {
         get { defaults.object(forKey: "autoSaveClips") as? Bool ?? true }
@@ -32,8 +37,9 @@ final class ClipboardHistory {
     func remember(_ count: Int) { state.didSave(change: count); defaults.set(count, forKey: "lastSavedClipboardChange") }
     @discardableResult
     func capture(allowed: Bool, force: Bool = false) -> Bool {
-        guard allowed, let store else { return false }
+        guard allowed, !writingPasteboard, let store else { return false }
         let pasteboard = UIPasteboard.general; let count = pasteboard.changeCount
+        if pasteboard.types.contains(ownImageMarker) { remember(count); return false }
         guard state.shouldRead(change: count, automaticSaving: automatic, force: force) else { return false }
         state.willRead(change: count)
         do {
@@ -52,6 +58,68 @@ final class ClipboardHistory {
             else { remember(count); return false }
             remember(count); message = ""; return true
         } catch { message = error.localizedDescription; return false }
+    }
+    @discardableResult
+    func prepareImage(_ clip: Clip) -> Bool {
+        do {
+            guard let data = try store?.imageData(for: clip) else { return false }
+            writingPasteboard = true
+            defer { writingPasteboard = false }
+            UIPasteboard.general.setItems([[UTType.png.identifier: data, ownImageMarker: clip.id.uuidString]], options: [.localOnly: true])
+            remember(UIPasteboard.general.changeCount)
+            message = "Image ready. Hold the destination field and choose Paste. iOS keyboards cannot insert image attachments directly."
+            return true
+        } catch { message = error.localizedDescription; return false }
+    }
+    var screenshotSaving: Bool { defaults.bool(forKey: "screenshotSaving") }
+    func setScreenshotSaving(_ enabled: Bool) {
+        guard enabled else { defaults.set(false, forKey: "screenshotSaving"); return }
+        PHPhotoLibrary.requestAuthorization(for: .readWrite) { [weak self] status in
+            DispatchQueue.main.async {
+                guard let self else { return }
+                if status == .authorized || status == .limited {
+                    if self.defaults.data(forKey: "screenshotCheckpoint") == nil {
+                        let checkpoint = ScreenshotCheckpoint(startingAt: Date())
+                        self.defaults.set(try? JSONEncoder().encode(checkpoint), forKey: "screenshotCheckpoint")
+                    }
+                    self.defaults.set(true, forKey: "screenshotSaving")
+                    self.message = "New screenshots will import when S23 is visible. Photos access determines which images are available."
+                } else { self.defaults.set(false, forKey: "screenshotSaving"); self.message = "Photos permission is required to import screenshots." }
+                self.didChange?()
+            }
+        }
+    }
+    func syncScreenshots(allowed: Bool) {
+        guard allowed, screenshotSaving, !screenshotBusy, let store,
+              store.clips.count < ClipboardStore.capacity,
+              let data = defaults.data(forKey: "screenshotCheckpoint"),
+              var checkpoint = try? JSONDecoder().decode(ScreenshotCheckpoint.self, from: data) else { return }
+        let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+        guard status == .authorized || status == .limited else { return }
+        let options = PHFetchOptions()
+        options.predicate = NSPredicate(format: "(mediaSubtype & %d) != 0", PHAssetMediaSubtype.photoScreenshot.rawValue)
+        options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: true)]
+        let result = PHAsset.fetchAssets(with: .image, options: options)
+        var next: PHAsset?
+        result.enumerateObjects { asset, _, stop in
+            if let date = asset.creationDate, checkpoint.shouldImport(id: asset.localIdentifier, createdAt: date) { next = asset; stop.pointee = true }
+        }
+        guard let asset = next, let date = asset.creationDate else { return }
+        screenshotBusy = true
+        let request = PHImageRequestOptions(); request.isNetworkAccessAllowed = false; request.deliveryMode = .highQualityFormat
+        PHImageManager.default().requestImageDataAndOrientation(for: asset, options: request) { [weak self] bytes, _, _, _ in
+            DispatchQueue.main.async {
+                guard let self else { return }; defer { self.screenshotBusy = false }
+                guard self.screenshotSaving else { return }
+                do {
+                    guard let bytes, let png = try Self.thumbnail(bytes, maximum: 1600) else { return }
+                    try store.add(png: png, sourceIdentifier: asset.localIdentifier)
+                    checkpoint.record(id: asset.localIdentifier, createdAt: date)
+                    self.defaults.set(try JSONEncoder().encode(checkpoint), forKey: "screenshotCheckpoint")
+                    self.message = "Screenshot saved privately in Clipboard."; self.didChange?()
+                } catch { self.message = error.localizedDescription; self.didChange?() }
+            }
+        }
     }
     func remove(_ clip: Clip) {
         do { try store?.remove(id: clip.id); message = "" } catch { message = error.localizedDescription }

@@ -11,13 +11,14 @@ public struct Clip: Codable, Identifiable, Equatable, Sendable {
 }
 
 public enum ClipboardError: Error, LocalizedError {
-    case empty, tooLarge, invalidManifest
+    case empty, tooLarge, invalidManifest, full
 
     public var errorDescription: String? {
         switch self {
         case .empty: "The clipboard contains no supported content."
         case .tooLarge: "This item is too large to save. The limit is 8 MB per item."
         case .invalidManifest: "History could not be read. Existing files were preserved."
+        case .full: "Clipboard is full (50 items). Existing items are preserved. Delete an item explicitly to save another."
         }
     }
 }
@@ -54,8 +55,9 @@ public final class ClipboardStore {
     public func add(text: String, date: Date = Date()) throws -> Clip {
         guard !text.isEmpty else { throw ClipboardError.empty }
         guard text.utf8.count <= Self.maximumBytes else { throw ClipboardError.tooLarge }
+        guard clips.count < Self.capacity else { throw ClipboardError.full }
         let clip = Clip(id: UUID(), kind: .text, createdAt: date, text: text, imageFile: nil, sourceIdentifier: nil)
-        try commit(Array(([clip] + clips).prefix(Self.capacity)))
+        try commit([clip] + clips)
         return clip
     }
 
@@ -64,13 +66,14 @@ public final class ClipboardStore {
         guard !png.isEmpty else { throw ClipboardError.empty }
         guard png.count <= Self.maximumBytes else { throw ClipboardError.tooLarge }
         if let sourceIdentifier, let existing = clips.first(where: { $0.sourceIdentifier == sourceIdentifier }) { return existing }
+        guard clips.count < Self.capacity else { throw ClipboardError.full }
         let id = UUID()
         let name = "\(id.uuidString).png"
         let payload = directory.appendingPathComponent(name)
         try png.write(to: payload, options: .atomic)
         do {
             let clip = Clip(id: id, kind: .image, createdAt: date, text: nil, imageFile: name, sourceIdentifier: sourceIdentifier)
-            try commit(Array(([clip] + clips).prefix(Self.capacity)))
+            try commit([clip] + clips)
             return clip
         } catch {
             try? files.removeItem(at: payload)

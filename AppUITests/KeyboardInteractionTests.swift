@@ -33,7 +33,9 @@ final class KeyboardInteractionTests: XCTestCase {
         XCTAssertTrue(app.buttons["q"].exists)
         app.buttons["!#1"].tap()
         XCTAssertTrue(app.buttons["@"].exists)
-        app.buttons["Emoji"].tap()
-        XCTAssertTrue(app.buttons["😀"].exists)
+        XCTAssertFalse(app.buttons["Emoji"].exists)
+        XCTAssertFalse(app.buttons["Cursor"].exists)
+        XCTAssertFalse(app.buttons["More"].exists)
+        XCTAssertFalse(app.buttons["Hide keyboard"].exists)
     }
 }
