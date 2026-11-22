@@ -377,7 +377,7 @@ final class KeyboardViewController: UIInputViewController, UIGestureRecognizerDe
     }
     private func render() {
         clearRoot()
-        heightConstraint?.constant = 5 * keyHeight + 134
+        heightConstraint?.constant = 5 * keyHeight + 146
         toolbar()
         if panel == "keys" {
             let suggestions = row(height: 28)
