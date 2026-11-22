@@ -10,7 +10,7 @@ public struct Clip: Codable, Identifiable, Equatable, Sendable {
     public let sourceIdentifier: String?
 }
 
-public enum ClipboardError: Error, LocalizedError {
+public enum ClipboardError: Error, LocalizedError, Equatable {
     case empty, tooLarge, invalidManifest, full
 
     public var errorDescription: String? {
