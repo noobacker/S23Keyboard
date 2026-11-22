@@ -40,7 +40,13 @@ The single angled photo is insufficient to establish exact pixel measurements, a
 
 ## Verification status
 
-Configuration and source structure checked in the creation environment. Xcode and the iOS SDK are unavailable there: **no iOS compilation, simulator run, signing, physical-device test or pixel-comparison has been performed**. Treat this as an uncompiled first prototype.
+The app and embedded keyboard extension compiled successfully for a physical iPhone in Release configuration on a GitHub-hosted macOS runner on November 21, 2026. [Build log](https://github.com/noobacker/S23Keyboard/actions/runs/44972447390). Compilation does not verify runtime behavior: simulator, physical-device typing, feedback and pixel comparison remain unverified.
+
+## Build without installing Xcode locally
+
+Run the **Build keyboard IPA** workflow in this repository's GitHub Actions tab. It uses Xcode on a hosted Mac, with a ten-minute job timeout, and uploads a seven-day `S23Keyboard-unsigned` artifact. Download and extract that artifact to obtain the IPA. The unsigned IPA cannot run until a signing tool signs both the app and its keyboard extension.
+
+On this Mac, Sideloadly is installed. Select the connected, trusted iPhone, load the IPA, and retain the keyboard plug-in (the advanced options should show **Dropping 0 of 1 plug-ins**). Sign and install with your Apple ID, then enable S23 Style in iPhone keyboard settings. A free Apple account requires periodic re-signing; Sideloadly offers automatic refresh. Never commit Apple ID credentials, signing certificates or provisioning profiles to the repository.
 
 Before daily use, build in Xcode and check: insertion and return in Notes/Messages; tap/hold globe; all symbols and emoji; caps lock; repeat deletion and cancellation; portrait/landscape and smaller screens; all feedback settings; persistence after switching apps; clipboard with Full Access off/on; large clips and clear; VoiceOver; and secure-field fallback.
 
