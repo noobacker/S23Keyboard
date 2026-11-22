@@ -36,8 +36,9 @@ enum KeyboardIcon: String {
                 cg.addArc(center: CGPoint(x: 12, y: 12), radius: 5, startAngle: .pi * 0.15, endAngle: .pi * 0.85, clockwise: false)
                 cg.strokePath()
             case .clipboard:
-                rect(5, 4, 14, 17); cg.setFillColor(UIColor.white.cgColor)
-                cg.fill(CGRect(x: 9, y: 2, width: 6, height: 5)); rect(9, 2, 6, 5, 1)
+                rect(5, 4, 14, 17)
+                cg.saveGState(); cg.setBlendMode(.clear); cg.fill(CGRect(x: 9, y: 2, width: 6, height: 5)); cg.restoreGState()
+                rect(9, 2, 6, 5, 1)
                 path([(8, 11), (16, 11)]); path([(8, 15), (16, 15)])
             case .cursor:
                 path([(3, 12), (21, 12)]); path([(7, 8), (3, 12), (7, 16)])

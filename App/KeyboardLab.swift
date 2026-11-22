@@ -12,12 +12,19 @@ final class KeyboardLabController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
-        let stack = UIStackView(); stack.axis = .vertical; stack.spacing = 10
-        stack.translatesAutoresizingMaskIntoConstraints = false; view.addSubview(stack)
+        let scroll = UIScrollView(); scroll.translatesAutoresizingMaskIntoConstraints = false; view.addSubview(scroll)
         NSLayoutConstraint.activate([
-            stack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
-            stack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8),
-            stack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -8)
+            scroll.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor), scroll.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            scroll.leadingAnchor.constraint(equalTo: view.leadingAnchor), scroll.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+        let stack = UIStackView(); stack.axis = .vertical; stack.spacing = 10
+        stack.translatesAutoresizingMaskIntoConstraints = false; scroll.addSubview(stack)
+        NSLayoutConstraint.activate([
+            stack.topAnchor.constraint(equalTo: scroll.contentLayoutGuide.topAnchor, constant: 8),
+            stack.bottomAnchor.constraint(equalTo: scroll.contentLayoutGuide.bottomAnchor, constant: -8),
+            stack.leadingAnchor.constraint(equalTo: scroll.contentLayoutGuide.leadingAnchor, constant: 8),
+            stack.trailingAnchor.constraint(equalTo: scroll.contentLayoutGuide.trailingAnchor, constant: -8),
+            stack.widthAnchor.constraint(equalTo: scroll.frameLayoutGuide.widthAnchor, constant: -16)
         ])
         let hint = UILabel(); hint.text = "Try taps, holds, space-bar cursor movement and the Clipboard panel. These are the same controls as the installed keyboard."
         hint.font = .systemFont(ofSize: 14); hint.textColor = .secondaryLabel; hint.numberOfLines = 0; stack.addArrangedSubview(hint)

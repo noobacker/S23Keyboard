@@ -1,6 +1,6 @@
-# S23 Style Keyboard — iPhone prototype 0.2
+# S23 Style Keyboard 0.3
 
-Native Swift keyboard extension with a small setup app. Uses Apple-inspired key styling with the Samsung-style placement requested by Harshal. The Samsung photos guide placement and feature goals, not the key appearance. This is source code, not a signed installable IPA or a finished Samsung feature replica.
+Native Swift keyboard extension with a setup app and an interactive typing test. Uses iOS keycaps with Samsung-style placement, a number row, hold symbols/accents, and a labeled tool strip. The UI and interaction reference is [KeyboardKit](https://github.com/KeyboardKit/KeyboardKit); no KeyboardKit binary or paid feature is integrated. Toolbar and utility icons are original vector recreations, not extracted Samsung assets.
 
 ## Build and install on your iPhone
 
@@ -24,17 +24,22 @@ Personal development signing is for testing and may require periodic re-signing.
 - Samsung-style number row, symbol hints, toolbar, dedicated comma/full stop and English (UK) space bar.
 - Emoji characters rendered by iOS using its native emoji appearance; the prototype emoji picker remains a limited custom panel.
 - Letters, shift/caps lock, two symbol pages, punctuation and return labels.
-- Long-press symbol entry and hold-to-repeat deletion.
+- Character preview callouts, hold-and-slide symbol/accent selection, and hold-to-repeat deletion without an extra release deletion.
+- Hold and slide Space to move the cursor.
 - Basic emoji panel and cursor left/right controls.
 - Keyboard-local settings: highlight, system click toggle, haptic toggle/strength and height.
-- Explicit clipboard import, up to 20 saved text clips, insert and clear.
+- ClipKey-style automatic capture when the keyboard opens and while it is visible, plus explicit save and native Paste controls. Holds 50 text/image clips with insertion, image copying, individual deletion and clear. Existing S23 text clips migrate on first use.
+- Retained, prepared haptic generator and touch-down feedback. Sound and haptics default on; existing explicit preferences are preserved. Settings include a feedback test.
+- A typing-test screen in the containing app uses the same keyboard controls for testing through iPhone Mirroring.
 - System keyboard switch menu and dismiss control.
 
-Settings and saved clips use the extension's local preferences. No typed-text logging, backend, analytics, API key, or network request is included. Clipboard import is initiated only by tapping Import. Full Access is requested in the extension configuration for that feature; ordinary typing does not require it. Sound and haptic behavior must be verified on a physical device and remains subject to iOS/device settings.
+The extension stores clips locally in its own protected, backup-excluded Application Support folder. No typed-text logging, backend, analytics, API key or network service is included. Auto-save defaults on and can be paused. Capture requires Allow Full Access, and iOS may additionally request paste permission. A denied read is not repeatedly attempted by the timer; reopen the keyboard or tap Save copied item to retry. The watcher stops when the keyboard closes. It cannot capture everything while closed or read ClipKey's private saved history. The app typing test and extension also have separate histories because this free-signing build has no shared App Group.
+
+Enable **Settings → General → Keyboard → Keyboards → S23 Style → Allow Full Access** for clipboard and haptic functionality. Ordinary typing works without it. Sound and haptics remain subject to device/iOS settings and need physical-device confirmation.
 
 ## Not implemented
 
-Translation, AI grammar/meaning correction, swipe decoding, predictive text/autocorrect, multilingual layouts, GIFs/stickers, complete Samsung emoji catalogue, full themes, floating/one-handed mode, automatic background clipboard capture, and voice dictation. The toolbar does not pretend those tools work. The main photo's microphone is omitted rather than shown as a nonfunctional recording button.
+Translation, AI grammar/meaning correction, swipe decoding, predictive text/autocorrect, multilingual layouts, GIFs/stickers, complete Samsung emoji catalogue, full themes, floating/one-handed mode, capture while the keyboard is closed, and voice dictation.
 
 The single angled photo is insufficient to establish exact pixel measurements, all panels, or the complete feature set. Additional straight screenshots of the original keyboard, settings, clipboard and expanded toolbar would improve visual matching. This project uses text/system glyphs rather than extracted Samsung assets.
 
@@ -61,4 +66,4 @@ Some host apps disallow custom keyboards, and secure text fields use the system 
 
 ## Appearance update
 
-This revision changes presentation only. Button actions and feature availability are unchanged. It uses UIKit styling rather than CSS because it is a native iPhone keyboard extension. Apple key sizing is a visual target, not a pixel-verified match; the extra number row and punctuation keys affect total keyboard geometry. The new Samsung screenshots also record AI rewriting/tone and translation as future feature references; those capabilities are still not implemented.
+See [DESIGN.md](DESIGN.md) for visual decisions and [VERIFICATION.md](VERIFICATION.md) for the revision's checks. KeyboardKit informs the behavior of feedback, callouts and clipboard controls; it is not a dependency. Original Samsung icon files are still needed for an exact asset match.
