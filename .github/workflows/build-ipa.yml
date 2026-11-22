@@ -14,11 +14,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Test clipboard persistence and capture state
         run: swift test --build-system native
-      - name: Test keyboard interactions in iPhone simulator
-        run: |
-          xcodebuild -project S23Keyboard.xcodeproj -scheme S23Keyboard \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro Max' \
-            -derivedDataPath simulator-build CODE_SIGNING_ALLOWED=NO test
       - name: Build for iPhone without signing
         run: |
           xcodebuild -project S23Keyboard.xcodeproj \
@@ -46,3 +41,19 @@ jobs:
           path: S23Keyboard-unsigned.ipa
           retention-days: 7
           if-no-files-found: error
+  keyboard-ui:
+    runs-on: macos-15
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test keyboard interactions in iPhone simulator
+        run: |
+          xcodebuild -project S23Keyboard.xcodeproj -scheme S23Keyboard \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro Max' \
+            -derivedDataPath simulator-build CODE_SIGNING_ALLOWED=NO test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: keyboard-ui-test-results
+          path: simulator-build/Logs/Test/*.xcresult
+          retention-days: 3

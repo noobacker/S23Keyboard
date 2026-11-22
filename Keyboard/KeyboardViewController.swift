@@ -383,7 +383,7 @@ final class KeyboardViewController: UIInputViewController {
         bottom.addArrangedSubview(space)
         bottom.addArrangedSubview(button(".") { [weak self] in self?.insert(".") })
         let returnLabel: String
-        switch textDocumentProxy.returnKeyType ?? .default {
+        switch testTextView == nil ? (textDocumentProxy.returnKeyType ?? .default) : .default {
         case .search: returnLabel = "Search"
         case .send: returnLabel = "Send"
         case .go: returnLabel = "Go"
