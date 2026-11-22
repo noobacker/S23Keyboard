@@ -1,0 +1,36 @@
+name: Build keyboard IPA
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build for iPhone without signing
+        run: |
+          xcodebuild -project S23Keyboard.xcodeproj \
+            -scheme S23Keyboard -configuration Release \
+            -sdk iphoneos -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO build
+      - name: Package app and keyboard extension
+        run: |
+          set -euo pipefail
+          APP=build/Build/Products/Release-iphoneos/S23Keyboard.app
+          test -f "$APP/PlugIns/Keyboard.appex/Keyboard"
+          mkdir -p package/Payload
+          ditto "$APP" package/Payload/S23Keyboard.app
+          cd package
+          /usr/bin/zip -qry ../S23Keyboard-unsigned.ipa Payload
+      - uses: actions/upload-artifact@v4
+        with:
+          name: S23Keyboard-unsigned
+          path: S23Keyboard-unsigned.ipa
+          retention-days: 7
+          if-no-files-found: error
