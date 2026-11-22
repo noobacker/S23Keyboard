@@ -7,9 +7,19 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0F3C6F8153D2FAA924991A05 /* ClipboardCaptureState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55AF6B3EDA2BE804B9060CD2 /* ClipboardCaptureState.swift */; };
+		267D43CE71E763087FABBA1D /* ClipboardHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13A450711A3978D943FF4427 /* ClipboardHistory.swift */; };
+		4EDE5752EA9982E9720A8A06 /* ClipboardStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F80F9ED194CE53D7CAF0A5 /* ClipboardStore.swift */; };
+		5C181BB92009094C80A4AE0D /* KeyboardLab.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBCE66DDF3BFBD28419B4CBF /* KeyboardLab.swift */; };
+		5C51D1592EF080B58FE58F06 /* KeyboardIcons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C60C7A2F099B3BAED0AB3FB /* KeyboardIcons.swift */; };
+		6153BA5A17C2F455AFE51FD3 /* ClipboardHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13A450711A3978D943FF4427 /* ClipboardHistory.swift */; };
+		632F2264A480203D1E3570D1 /* ClipboardCaptureState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55AF6B3EDA2BE804B9060CD2 /* ClipboardCaptureState.swift */; };
 		6D6F9FE9F6B84BAD5A2B5C6C /* KeyboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2656E15FDFCD62957A5B9BE7 /* KeyboardViewController.swift */; };
+		720059DAE6B895C04464D421 /* ClipboardStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F80F9ED194CE53D7CAF0A5 /* ClipboardStore.swift */; };
+		A66D69B35F3D529A26ECEE63 /* KeyboardIcons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C60C7A2F099B3BAED0AB3FB /* KeyboardIcons.swift */; };
 		BBD25B0CEF7FE280AF688096 /* S23KeyboardApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C5ED2AE9F18FF8FD8500F7 /* S23KeyboardApp.swift */; };
 		C741C4B7F91F5EE06AAD64B4 /* Keyboard.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B5C7E9A370A1C258671D11A5 /* Keyboard.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		E2553FE302BBDCF02AF04AE7 /* KeyboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2656E15FDFCD62957A5B9BE7 /* KeyboardViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -37,9 +47,14 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		13A450711A3978D943FF4427 /* ClipboardHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardHistory.swift; sourceTree = "<group>"; };
 		2656E15FDFCD62957A5B9BE7 /* KeyboardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardViewController.swift; sourceTree = "<group>"; };
+		55AF6B3EDA2BE804B9060CD2 /* ClipboardCaptureState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardCaptureState.swift; sourceTree = "<group>"; };
+		74F80F9ED194CE53D7CAF0A5 /* ClipboardStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardStore.swift; sourceTree = "<group>"; };
+		9C60C7A2F099B3BAED0AB3FB /* KeyboardIcons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardIcons.swift; sourceTree = "<group>"; };
 		B5C7E9A370A1C258671D11A5 /* Keyboard.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = Keyboard.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		C2ECCBD1727ED6F43DC3A5B5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		CBCE66DDF3BFBD28419B4CBF /* KeyboardLab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardLab.swift; sourceTree = "<group>"; };
 		D8C5ED2AE9F18FF8FD8500F7 /* S23KeyboardApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = S23KeyboardApp.swift; sourceTree = "<group>"; };
 		E013BABF2AA04A3023F37EDC /* S23Keyboard.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = S23Keyboard.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -48,6 +63,7 @@
 		158F7447608B40F61488AAE5 /* App */ = {
 			isa = PBXGroup;
 			children = (
+				CBCE66DDF3BFBD28419B4CBF /* KeyboardLab.swift */,
 				D8C5ED2AE9F18FF8FD8500F7 /* S23KeyboardApp.swift */,
 			);
 			path = App;
@@ -56,7 +72,9 @@
 		9000F35056B8527AA2D78850 /* Keyboard */ = {
 			isa = PBXGroup;
 			children = (
+				13A450711A3978D943FF4427 /* ClipboardHistory.swift */,
 				C2ECCBD1727ED6F43DC3A5B5 /* Info.plist */,
+				9C60C7A2F099B3BAED0AB3FB /* KeyboardIcons.swift */,
 				2656E15FDFCD62957A5B9BE7 /* KeyboardViewController.swift */,
 			);
 			path = Keyboard;
@@ -75,9 +93,20 @@
 			isa = PBXGroup;
 			children = (
 				158F7447608B40F61488AAE5 /* App */,
+				E0C422CDADBF0426189AABB1 /* ClipboardCore */,
 				9000F35056B8527AA2D78850 /* Keyboard */,
 				B2051C17C5EBE00F1481C730 /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		E0C422CDADBF0426189AABB1 /* ClipboardCore */ = {
+			isa = PBXGroup;
+			children = (
+				55AF6B3EDA2BE804B9060CD2 /* ClipboardCaptureState.swift */,
+				74F80F9ED194CE53D7CAF0A5 /* ClipboardStore.swift */,
+			);
+			name = ClipboardCore;
+			path = Sources/ClipboardCore;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -161,6 +190,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0F3C6F8153D2FAA924991A05 /* ClipboardCaptureState.swift in Sources */,
+				6153BA5A17C2F455AFE51FD3 /* ClipboardHistory.swift in Sources */,
+				4EDE5752EA9982E9720A8A06 /* ClipboardStore.swift in Sources */,
+				5C51D1592EF080B58FE58F06 /* KeyboardIcons.swift in Sources */,
 				6D6F9FE9F6B84BAD5A2B5C6C /* KeyboardViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -169,6 +202,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				632F2264A480203D1E3570D1 /* ClipboardCaptureState.swift in Sources */,
+				267D43CE71E763087FABBA1D /* ClipboardHistory.swift in Sources */,
+				720059DAE6B895C04464D421 /* ClipboardStore.swift in Sources */,
+				A66D69B35F3D529A26ECEE63 /* KeyboardIcons.swift in Sources */,
+				5C181BB92009094C80A4AE0D /* KeyboardLab.swift in Sources */,
+				E2553FE302BBDCF02AF04AE7 /* KeyboardViewController.swift in Sources */,
 				BBD25B0CEF7FE280AF688096 /* S23KeyboardApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -190,8 +229,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Keyboard/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "S23 Style Keyboard";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -225,8 +266,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Keyboard/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "S23 Style Keyboard";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -272,7 +315,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -285,7 +328,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 0.3.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -349,7 +392,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -368,7 +411,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 0.3.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;

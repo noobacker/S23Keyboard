@@ -12,6 +12,8 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+      - name: Test clipboard persistence and capture state
+        run: swift test --build-system native
       - name: Build for iPhone without signing
         run: |
           xcodebuild -project S23Keyboard.xcodeproj \

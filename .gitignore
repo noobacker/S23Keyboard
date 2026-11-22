@@ -5,3 +5,6 @@ package/
 *.mobileprovision
 xcuserdata/
 .DS_Store
+.build/
+.swiftpm/
+dist/
