@@ -29,7 +29,7 @@ final class KeyboardInteractionTests: XCTestCase {
         XCTAssertEqual(text.value as? String, "q123q123")
         app.buttons["Settings"].tap()
         XCTAssertTrue(app.switches["Haptics"].waitForExistence(timeout: 5))
-        app.buttons["Back to keyboard"].tap()
+        app.buttons.matching(identifier: "Back to keyboard").firstMatch.tap()
         XCTAssertTrue(app.buttons["q"].exists)
         app.buttons["!#1"].tap()
         XCTAssertTrue(app.buttons["@"].exists)
