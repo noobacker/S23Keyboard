@@ -1,6 +1,6 @@
-# S23 Style Keyboard 0.3
+# S23 Style Keyboard 0.3.1
 
-Native Swift keyboard extension with a setup app and an interactive typing test. Uses iOS keycaps with Samsung-style placement, a number row, hold symbols/accents, and a labeled tool strip. The UI and interaction reference is [KeyboardKit](https://github.com/KeyboardKit/KeyboardKit); no KeyboardKit binary or paid feature is integrated. Toolbar and utility icons are original vector recreations, not extracted Samsung assets.
+Native Swift keyboard extension with a setup app and an interactive typing test. Uses iOS keycaps with Samsung-style placement, a number row, hold symbols/accents, and a labeled tool strip. The UI and interaction reference is [KeyboardKit](https://github.com/KeyboardKit/KeyboardKit); no KeyboardKit binary or paid feature is integrated. Toolbar and utility controls use Samsung/One UI vectors from [OneUIProject](https://github.com/OneUIProject/oneui-icons), including keyboard-specific shift, delete and enter. See [asset provenance](ThirdParty/OneUIProject/README.md) and the bundled MIT license. Matching every Samsung Keyboard version is not guaranteed.
 
 ## Build and install on your iPhone
 
@@ -66,4 +66,4 @@ Some host apps disallow custom keyboards, and secure text fields use the system 
 
 ## Appearance update
 
-See [DESIGN.md](DESIGN.md) for visual decisions and [VERIFICATION.md](VERIFICATION.md) for the revision's checks. KeyboardKit informs the behavior of feedback, callouts and clipboard controls; it is not a dependency. Original Samsung icon files are still needed for an exact asset match.
+See [DESIGN.md](DESIGN.md) for visual decisions and [VERIFICATION.md](VERIFICATION.md) for the revision's checks. KeyboardKit informs feedback, callouts and clipboard controls; it is not a dependency. Version 0.3.1 replaces the first pass of recreated controls with the OneUIProject assets.

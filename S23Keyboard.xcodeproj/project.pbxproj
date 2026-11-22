@@ -15,11 +15,15 @@
 		6153BA5A17C2F455AFE51FD3 /* ClipboardHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13A450711A3978D943FF4427 /* ClipboardHistory.swift */; };
 		632F2264A480203D1E3570D1 /* ClipboardCaptureState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55AF6B3EDA2BE804B9060CD2 /* ClipboardCaptureState.swift */; };
 		6D6F9FE9F6B84BAD5A2B5C6C /* KeyboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2656E15FDFCD62957A5B9BE7 /* KeyboardViewController.swift */; };
+		7196363EE9F4E3E40622C441 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1174B257A745986C5913DCB2 /* Assets.xcassets */; };
 		720059DAE6B895C04464D421 /* ClipboardStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F80F9ED194CE53D7CAF0A5 /* ClipboardStore.swift */; };
+		844ACC665448FF82906E1939 /* OneUIProject-LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 268CF7397E3890C9E133C48A /* OneUIProject-LICENSE.txt */; };
 		A66D69B35F3D529A26ECEE63 /* KeyboardIcons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C60C7A2F099B3BAED0AB3FB /* KeyboardIcons.swift */; };
 		BBD25B0CEF7FE280AF688096 /* S23KeyboardApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C5ED2AE9F18FF8FD8500F7 /* S23KeyboardApp.swift */; };
 		C741C4B7F91F5EE06AAD64B4 /* Keyboard.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B5C7E9A370A1C258671D11A5 /* Keyboard.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E2553FE302BBDCF02AF04AE7 /* KeyboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2656E15FDFCD62957A5B9BE7 /* KeyboardViewController.swift */; };
+		E29CDF810EAAD5482E7303DB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1174B257A745986C5913DCB2 /* Assets.xcassets */; };
+		E40EA0A01A6BD8BE359D908C /* OneUIProject-LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 268CF7397E3890C9E133C48A /* OneUIProject-LICENSE.txt */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,8 +51,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		1174B257A745986C5913DCB2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		13A450711A3978D943FF4427 /* ClipboardHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardHistory.swift; sourceTree = "<group>"; };
 		2656E15FDFCD62957A5B9BE7 /* KeyboardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardViewController.swift; sourceTree = "<group>"; };
+		268CF7397E3890C9E133C48A /* OneUIProject-LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "OneUIProject-LICENSE.txt"; sourceTree = "<group>"; };
 		4900AB04FF70A274C39106F5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		55AF6B3EDA2BE804B9060CD2 /* ClipboardCaptureState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardCaptureState.swift; sourceTree = "<group>"; };
 		74F80F9ED194CE53D7CAF0A5 /* ClipboardStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardStore.swift; sourceTree = "<group>"; };
@@ -71,13 +77,23 @@
 			path = App;
 			sourceTree = "<group>";
 		};
+		654403D480625BCBBE0FCAA4 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				268CF7397E3890C9E133C48A /* OneUIProject-LICENSE.txt */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		9000F35056B8527AA2D78850 /* Keyboard */ = {
 			isa = PBXGroup;
 			children = (
+				1174B257A745986C5913DCB2 /* Assets.xcassets */,
 				13A450711A3978D943FF4427 /* ClipboardHistory.swift */,
 				C2ECCBD1727ED6F43DC3A5B5 /* Info.plist */,
 				9C60C7A2F099B3BAED0AB3FB /* KeyboardIcons.swift */,
 				2656E15FDFCD62957A5B9BE7 /* KeyboardViewController.swift */,
+				654403D480625BCBBE0FCAA4 /* Resources */,
 			);
 			path = Keyboard;
 			sourceTree = "<group>";
@@ -119,6 +135,7 @@
 			buildConfigurationList = 31272D08B1F1C70C2C5597D5 /* Build configuration list for PBXNativeTarget "Keyboard" */;
 			buildPhases = (
 				0AEBD2AC54F0AB59B07D9636 /* Sources */,
+				47FA52B9AA5B298DE6BDC3A4 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -136,6 +153,7 @@
 			buildConfigurationList = D89405688678A61DA0362146 /* Build configuration list for PBXNativeTarget "S23Keyboard" */;
 			buildPhases = (
 				F4A6FB6DD8627FAEEBDB476B /* Sources */,
+				6C1A1C9F08CA438EA5C1E374 /* Resources */,
 				668B7FD7FE55EB44A6CFE5E8 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
@@ -186,6 +204,27 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		47FA52B9AA5B298DE6BDC3A4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7196363EE9F4E3E40622C441 /* Assets.xcassets in Resources */,
+				844ACC665448FF82906E1939 /* OneUIProject-LICENSE.txt in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6C1A1C9F08CA438EA5C1E374 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E29CDF810EAAD5482E7303DB /* Assets.xcassets in Resources */,
+				E40EA0A01A6BD8BE359D908C /* OneUIProject-LICENSE.txt in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		0AEBD2AC54F0AB59B07D9636 /* Sources */ = {
@@ -317,7 +356,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -330,7 +369,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 0.3.0;
+				MARKETING_VERSION = 0.3.1;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -394,7 +433,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -413,7 +452,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 0.3.0;
+				MARKETING_VERSION = 0.3.1;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;

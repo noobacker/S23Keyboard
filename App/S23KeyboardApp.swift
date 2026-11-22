@@ -25,7 +25,7 @@ struct SetupView: View {
                 Section("Customize while typing") {
                     Text("Tap the gear on the keyboard to adjust key highlights, sound, haptic strength, and keyboard height.")
                 }
-                Section("Version 0.3") {
+                Section("Version 0.3.1") {
                     Text("Touch feedback, character previews, hold-and-slide symbols and accents, cursor movement, and a 50-item text/image clipboard. ClipKey and S23 keep separate saved histories.")
                     Text("Translation, AI rewriting, swipe typing, and dictation are not implemented.")
                 }
