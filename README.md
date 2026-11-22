@@ -1,69 +1,30 @@
-# S23 Style Keyboard 0.3.1
+# S23 Style Keyboard 0.4
 
-Native Swift keyboard extension with a setup app and an interactive typing test. Uses iOS keycaps with Samsung-style placement, a number row, hold symbols/accents, and a labeled tool strip. The UI and interaction reference is [KeyboardKit](https://github.com/KeyboardKit/KeyboardKit); no KeyboardKit binary or paid feature is integrated. Toolbar and utility controls use Samsung/One UI vectors from [OneUIProject](https://github.com/OneUIProject/oneui-icons), including keyboard-specific shift, delete and enter. See [asset provenance](ThirdParty/OneUIProject/README.md) and the bundled MIT license. Matching every Samsung Keyboard version is not guaranteed.
+A native iPhone keyboard using the supplied Samsung layout references and Samsung/One UI control assets from [OneUIProject](https://github.com/OneUIProject/oneui-icons). See the bundled MIT attribution in ThirdParty/OneUIProject. [KeyboardKit](https://github.com/KeyboardKit/KeyboardKit) is a behavior reference, not a dependency.
 
-## Build and install on your iPhone
+## Features
 
-Requires a Mac with Xcode, an Apple ID, and XcodeGen.
+- Permanent number row, two screenshot-matched symbol pages, English(India) space label, no custom globe/hide footer, and Clipboard/Settings toolbar.
+- Offline English swipe typing with candidate choices and a limited built-in dictionary. This is an initial gesture decoder, not Samsung's prediction engine.
+- More forgiving key touch regions, character callouts, hold symbols/accents, repeat deletion, and a dimmed two-direction cursor-control overlay on Space hold.
+- Light, Dark and Auto appearance; inset scrollable settings; adjustable key height, haptics and original synthesized click volume. No Samsung audio recording is included.
+- Private persistent text/image clipboard, capped at 50 combined items. At capacity, capture pauses instead of deleting old data. Saved text inserts directly. A saved image is prepared once for the destination app's native Paste action, without re-capturing its own clipboard write.
+- Optional PhotoKit screenshot capture with a persistent checkpoint. After Photos authorization, new accessible screenshots are imported when the keyboard is running or next reopened. Private copies are never added to Photos.
 
-1. Install Xcode from the Mac App Store and launch it once to finish setup.
-2. Install XcodeGen (`brew install xcodegen` if Homebrew is installed).
-3. In Terminal, enter this folder and run `xcodegen generate`.
-4. Open `S23Keyboard.xcodeproj` in Xcode.
-5. In Signing & Capabilities, choose your Apple development team for **both** the S23Keyboard app and Keyboard extension. Change both bundle identifiers to unique values if necessary, preserving the parent prefix.
-6. Connect your iPhone, choose it as the run destination, and enable Developer Mode if Xcode requests it.
-7. Run the S23Keyboard scheme. Follow any device trust instructions from Xcode.
-8. On iPhone, open Settings → General → Keyboard → Keyboards → Add New Keyboard → S23 Style.
-9. Open Notes or the included test field and hold the globe to switch keyboards.
+## iOS limitations and permissions
 
-Personal development signing is for testing and may require periodic re-signing. Long-term distribution needs an appropriate Apple signing/distribution route. No developer credentials or signing certificates are included.
+Enable S23 Style in Settings → General → Keyboard → Keyboards and enable Full Access for haptic/clipboard functionality. Where available, choose Settings → Apps → S23 Style Keyboard → Paste from Other Apps → Allow once to suppress recurring paste prompts. An app cannot grant this setting itself. A native Paste control is included for explicit imports.
 
-## Implemented in source
+There is no public superuser permission that keeps a suspended keyboard capturing the clipboard or screenshots. Screenshot import requires Photos authorization and cannot guarantee immediate capture while closed. iOS's original screenshots still appear in Photos; this app does not delete them. A custom keyboard's text proxy cannot insert image attachments into another app. Hold that app's field and choose Paste after preparing an image.
 
-- Apple-inspired rounded keycaps, subtle shadows, system typography, light/dark colors and a 43-point default key height.
-- Samsung-style number row, symbol hints, toolbar, dedicated comma/full stop and English (UK) space bar.
-- Emoji characters rendered by iOS using its native emoji appearance; the prototype emoji picker remains a limited custom panel.
-- Letters, shift/caps lock, two symbol pages, punctuation and return labels.
-- Character preview callouts, hold-and-slide symbol/accent selection, and hold-to-repeat deletion without an extra release deletion.
-- Hold and slide Space to move the cursor.
-- Basic emoji panel and cursor left/right controls.
-- Keyboard-local settings: highlight, system click toggle, haptic toggle/strength and height.
-- ClipKey-style automatic capture when the keyboard opens and while it is visible, plus explicit save and native Paste controls. Holds 50 text/image clips with insertion, image copying, individual deletion and clear. Existing S23 text clips migrate on first use.
-- Retained, prepared haptic generator and touch-down feedback. Sound and haptics default on; existing explicit preferences are preserved. Settings include a feedback test.
-- A typing-test screen in the containing app uses the same keyboard controls for testing through iPhone Mirroring.
-- System keyboard switch menu and dismiss control.
+Settings and history currently remain in the keyboard extension's private sandbox. The companion typing test uses the same controls but has a separate store. Existing ClipKey history is not read or changed. No network service, analytics, backend, typed-text log or API key is included. The build does not configure a shared App Group.
 
-The extension stores clips locally in its own protected, backup-excluded Application Support folder. No typed-text logging, backend, analytics, API key or network service is included. Auto-save defaults on and can be paused. Capture requires Allow Full Access, and iOS may additionally request paste permission. A denied read is not repeatedly attempted by the timer; reopen the keyboard or tap Save copied item to retry. The watcher stops when the keyboard closes. It cannot capture everything while closed or read ClipKey's private saved history. The app typing test and extension also have separate histories because this free-signing build has no shared App Group.
+Vertical cursor movement in the companion text view uses actual text geometry. In other apps it uses exposed logical line context, so wrapped visual lines and limited host context may differ from Samsung. iOS may retain its own system globe/dismiss controls outside this keyboard's view.
 
-Enable **Settings → General → Keyboard → Keyboards → S23 Style → Allow Full Access** for clipboard and haptic functionality. Ordinary typing works without it. Sound and haptics remain subject to device/iOS settings and need physical-device confirmation.
+## Build and install without local Xcode
 
-## Not implemented
+Run the **Build keyboard IPA** workflow on this public repository. GitHub's Mac performs clipboard/swipe tests and builds the app/extension. Download the `S23Keyboard-unsigned` artifact and use Sideloadly to sign and install with the existing Apple ID, retaining the keyboard plug-in. Free signing requires periodic refresh; Sideloadly offers automatic refresh. No credentials or provisioning files are stored in this repository.
 
-Translation, AI grammar/meaning correction, swipe decoding, predictive text/autocorrect, multilingual layouts, GIFs/stickers, complete Samsung emoji catalogue, full themes, floating/one-handed mode, capture while the keyboard is closed, and voice dictation.
+For local development, install Xcode and XcodeGen, run `xcodegen generate`, and open S23Keyboard.xcodeproj. Project signing is automatic. The test scheme includes an iPhone simulator interaction test.
 
-The single angled photo is insufficient to establish exact pixel measurements, all panels, or the complete feature set. Additional straight screenshots of the original keyboard, settings, clipboard and expanded toolbar would improve visual matching. This project uses text/system glyphs rather than extracted Samsung assets.
-
-## Verification status
-
-The app and embedded keyboard extension compiled successfully for a physical iPhone in Release configuration on a GitHub-hosted macOS runner on November 21, 2026. [Build log](https://github.com/noobacker/S23Keyboard/actions/runs/44972447390). Compilation does not verify runtime behavior: simulator, physical-device typing, feedback and pixel comparison remain unverified.
-
-## Build without installing Xcode locally
-
-Run the **Build keyboard IPA** workflow in this repository's GitHub Actions tab. It uses Xcode on a hosted Mac, with a ten-minute job timeout, and uploads a seven-day `S23Keyboard-unsigned` artifact. Download and extract that artifact to obtain the IPA. The unsigned IPA cannot run until a signing tool signs both the app and its keyboard extension.
-
-On this Mac, Sideloadly is installed. Select the connected, trusted iPhone, load the IPA, and retain the keyboard plug-in (the advanced options should show **Dropping 0 of 1 plug-ins**). Sign and install with your Apple ID, then enable S23 Style in iPhone keyboard settings. A free Apple account requires periodic re-signing; Sideloadly offers automatic refresh. Never commit Apple ID credentials, signing certificates or provisioning profiles to the repository.
-
-Before daily use, build in Xcode and check: insertion and return in Notes/Messages; tap/hold globe; all symbols and emoji; caps lock; repeat deletion and cancellation; portrait/landscape and smaller screens; all feedback settings; persistence after switching apps; clipboard with Full Access off/on; large clips and clear; VoiceOver; and secure-field fallback.
-
-## Apple platform references
-
-- https://developer.apple.com/documentation/uikit/creating-a-custom-keyboard
-- https://developer.apple.com/documentation/uikit/configuring-open-access-for-a-custom-keyboard
-- https://developer.apple.com/documentation/uikit/configuring-a-custom-keyboard-interface
-- https://developer.apple.com/documentation/uikit/uidevice/playinputclick()
-
-Some host apps disallow custom keyboards, and secure text fields use the system keyboard. Custom keyboard access to surrounding text is limited by the host. A full Samsung-equivalent experience cannot be guaranteed across iOS.
-
-## Appearance update
-
-See [DESIGN.md](DESIGN.md) for visual decisions and [VERIFICATION.md](VERIFICATION.md) for the revision's checks. KeyboardKit informs feedback, callouts and clipboard controls; it is not a dependency. Version 0.3.1 replaces the first pass of recreated controls with the OneUIProject assets.
+See [UPDATE-0.4.md](UPDATE-0.4.md) for request-by-request scope and platform references. Do not interpret automated tests as verification of physical haptic feel, audible output, or every host application's behavior.
