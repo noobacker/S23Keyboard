@@ -239,7 +239,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.harshal.S23Keyboard;
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -256,7 +256,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.harshal.S23Keyboard.Keyboard;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -276,7 +276,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.harshal.S23Keyboard;
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -353,7 +353,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.harshal.S23Keyboard.Keyboard;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

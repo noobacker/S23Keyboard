@@ -14,10 +14,15 @@ targets:
   S23Keyboard:
     type: application
     platform: iOS
-    sources: [App, Keyboard, Sources/ClipboardCore]
+    sources:
+      - path: App
+      - path: Keyboard
+        excludes: [Info.plist]
+      - path: Sources/ClipboardCore
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.harshal.S23Keyboard
+        TARGETED_DEVICE_FAMILY: '1'
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_CFBundleDisplayName: S23 Style Keyboard
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
@@ -31,6 +36,7 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.harshal.S23Keyboard.Keyboard
+        TARGETED_DEVICE_FAMILY: '1'
         APPLICATION_EXTENSION_API_ONLY: YES
         SKIP_INSTALL: YES
     info:

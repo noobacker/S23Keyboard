@@ -26,6 +26,11 @@ jobs:
           set -euo pipefail
           APP=build/Build/Products/Release-iphoneos/S23Keyboard.app
           test -f "$APP/PlugIns/Keyboard.appex/Keyboard"
+          if /usr/libexec/PlistBuddy -c 'Print NSExtension' "$APP/Info.plist" >/dev/null 2>&1; then
+            echo 'The containing app must not use the keyboard extension plist.'
+            exit 1
+          fi
+          test "$(/usr/libexec/PlistBuddy -c 'Print NSExtension:NSExtensionPointIdentifier' "$APP/PlugIns/Keyboard.appex/Info.plist")" = com.apple.keyboard-service
           mkdir -p package/Payload
           ditto "$APP" package/Payload/S23Keyboard.app
           cd package
