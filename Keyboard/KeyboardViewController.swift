@@ -293,6 +293,7 @@ final class KeyboardViewController: UIInputViewController, UIGestureRecognizerDe
         if shift && !capsLock { shift = false; render() }
     }
     private func deleteCharacter() {
+        lastSwipeWord = ""
         if let testTextView { testTextView.deleteBackward() } else { textDocumentProxy.deleteBackward() }
     }
     private func moveCursor(_ offset: Int) {
@@ -384,7 +385,14 @@ final class KeyboardViewController: UIInputViewController, UIGestureRecognizerDe
             for word in swipeCandidates.isEmpty ? ["I", "the", "and"] : swipeCandidates {
                 let key = button(word) { [weak self] in
                     guard let self else { return }
-                    if !self.lastSwipeWord.isEmpty { for _ in self.lastSwipeWord { self.deleteCharacter() } }
+                    let preceding: String?
+                    if let textView = self.testTextView {
+                        preceding = (textView.text as NSString).substring(to: min(textView.selectedRange.location, (textView.text as NSString).length))
+                    } else { preceding = self.textDocumentProxy.documentContextBeforeInput }
+                    let previous = self.lastSwipeWord
+                    if !previous.isEmpty && preceding?.hasSuffix(previous) == true {
+                        for _ in previous { self.deleteCharacter() }
+                    }
                     self.insert(word + " "); self.lastSwipeWord = ""
                 }
                 key.restingColor = .clear; key.titleLabel?.font = .systemFont(ofSize: 15); suggestions.addArrangedSubview(key)
