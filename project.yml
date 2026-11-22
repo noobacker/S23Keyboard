@@ -64,8 +64,21 @@ targets:
             PrefersRightToLeft: false
             PrimaryLanguage: en-GB
             RequestsOpenAccess: true
+  KeyboardUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [AppUITests]
+    dependencies:
+      - target: S23Keyboard
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.harshal.S23Keyboard.UITests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: S23Keyboard
 schemes:
   S23Keyboard:
     build:
       targets:
         S23Keyboard: all
+    test:
+      targets: [KeyboardUITests]

@@ -14,6 +14,7 @@
 		5C51D1592EF080B58FE58F06 /* KeyboardIcons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C60C7A2F099B3BAED0AB3FB /* KeyboardIcons.swift */; };
 		6153BA5A17C2F455AFE51FD3 /* ClipboardHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13A450711A3978D943FF4427 /* ClipboardHistory.swift */; };
 		632F2264A480203D1E3570D1 /* ClipboardCaptureState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55AF6B3EDA2BE804B9060CD2 /* ClipboardCaptureState.swift */; };
+		68AD85A5C983797D73C1CFC9 /* KeyboardInteractionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF93011F29C149334D938032 /* KeyboardInteractionTests.swift */; };
 		6D6F9FE9F6B84BAD5A2B5C6C /* KeyboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2656E15FDFCD62957A5B9BE7 /* KeyboardViewController.swift */; };
 		7196363EE9F4E3E40622C441 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1174B257A745986C5913DCB2 /* Assets.xcassets */; };
 		720059DAE6B895C04464D421 /* ClipboardStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F80F9ED194CE53D7CAF0A5 /* ClipboardStore.swift */; };
@@ -33,6 +34,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 30C3D6C410C5B1819F39A33A;
 			remoteInfo = Keyboard;
+		};
+		E27C0A84318BD85A852D661C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EFF8338C2477D65023925A06 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8812481B3994B9A1C20D70FE;
+			remoteInfo = S23Keyboard;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -62,8 +70,10 @@
 		B5C7E9A370A1C258671D11A5 /* Keyboard.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = Keyboard.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		C2ECCBD1727ED6F43DC3A5B5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		CBCE66DDF3BFBD28419B4CBF /* KeyboardLab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardLab.swift; sourceTree = "<group>"; };
+		CF93011F29C149334D938032 /* KeyboardInteractionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardInteractionTests.swift; sourceTree = "<group>"; };
 		D8C5ED2AE9F18FF8FD8500F7 /* S23KeyboardApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = S23KeyboardApp.swift; sourceTree = "<group>"; };
 		E013BABF2AA04A3023F37EDC /* S23Keyboard.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = S23Keyboard.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FE9CEB3C91A6C09B40558305 /* KeyboardUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = KeyboardUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -102,6 +112,7 @@
 			isa = PBXGroup;
 			children = (
 				B5C7E9A370A1C258671D11A5 /* Keyboard.appex */,
+				FE9CEB3C91A6C09B40558305 /* KeyboardUITests.xctest */,
 				E013BABF2AA04A3023F37EDC /* S23Keyboard.app */,
 			);
 			name = Products;
@@ -111,6 +122,7 @@
 			isa = PBXGroup;
 			children = (
 				158F7447608B40F61488AAE5 /* App */,
+				ECCF32F4E5230057A7E3A483 /* AppUITests */,
 				E0C422CDADBF0426189AABB1 /* ClipboardCore */,
 				9000F35056B8527AA2D78850 /* Keyboard */,
 				B2051C17C5EBE00F1481C730 /* Products */,
@@ -125,6 +137,14 @@
 			);
 			name = ClipboardCore;
 			path = Sources/ClipboardCore;
+			sourceTree = "<group>";
+		};
+		ECCF32F4E5230057A7E3A483 /* AppUITests */ = {
+			isa = PBXGroup;
+			children = (
+				CF93011F29C149334D938032 /* KeyboardInteractionTests.swift */,
+			);
+			path = AppUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -168,6 +188,24 @@
 			productReference = E013BABF2AA04A3023F37EDC /* S23Keyboard.app */;
 			productType = "com.apple.product-type.application";
 		};
+		ED453ADCAD36B889BE9883D7 /* KeyboardUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D25F8E537B44AC2271410E0D /* Build configuration list for PBXNativeTarget "KeyboardUITests" */;
+			buildPhases = (
+				30CD6B7723DD0554AA4FE4EA /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				5562A8F22231D34B95680612 /* PBXTargetDependency */,
+			);
+			name = KeyboardUITests;
+			packageProductDependencies = (
+			);
+			productName = KeyboardUITests;
+			productReference = FE9CEB3C91A6C09B40558305 /* KeyboardUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -182,6 +220,10 @@
 					};
 					8812481B3994B9A1C20D70FE = {
 						ProvisioningStyle = Automatic;
+					};
+					ED453ADCAD36B889BE9883D7 = {
+						ProvisioningStyle = Automatic;
+						TestTargetID = 8812481B3994B9A1C20D70FE;
 					};
 				};
 			};
@@ -201,6 +243,7 @@
 			targets = (
 				8812481B3994B9A1C20D70FE /* S23Keyboard */,
 				30C3D6C410C5B1819F39A33A /* Keyboard */,
+				ED453ADCAD36B889BE9883D7 /* KeyboardUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -239,6 +282,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		30CD6B7723DD0554AA4FE4EA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				68AD85A5C983797D73C1CFC9 /* KeyboardInteractionTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F4A6FB6DD8627FAEEBDB476B /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -256,6 +307,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		5562A8F22231D34B95680612 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8812481B3994B9A1C20D70FE /* S23Keyboard */;
+			targetProxy = E27C0A84318BD85A852D661C /* PBXContainerItemProxy */;
+		};
 		87C65755CD495E809BEF8FE1 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 30C3D6C410C5B1819F39A33A /* Keyboard */;
@@ -264,6 +320,23 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		3EC6B26C03D7C60AD5CB6585 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.harshal.S23Keyboard.UITests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = S23Keyboard;
+			};
+			name = Release;
+		};
 		6A80A2967ADE9E21BC14832D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -298,6 +371,23 @@
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		A74A55A8119B1CF9E58BC2A0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.harshal.S23Keyboard.UITests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = S23Keyboard;
 			};
 			name = Debug;
 		};
@@ -482,6 +572,15 @@
 			buildConfigurations = (
 				D0618BA61AAE043A5ED9D545 /* Debug */,
 				C03A338C3C1E205AB38FF43C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D25F8E537B44AC2271410E0D /* Build configuration list for PBXNativeTarget "KeyboardUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A74A55A8119B1CF9E58BC2A0 /* Debug */,
+				3EC6B26C03D7C60AD5CB6585 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

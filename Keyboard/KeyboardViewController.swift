@@ -342,9 +342,9 @@ final class KeyboardViewController: UIInputViewController {
                     self.render()
                 }
                 key.accessibilityLabel = symbols ? "More symbols" : "Shift; tap again for caps lock"
-                key.widthAnchor.constraint(equalTo: stack.widthAnchor, multiplier: 0.12).isActive = true
                 if shift && !symbols { key.tintColor = .systemBlue }
                 stack.addArrangedSubview(key)
+                key.widthAnchor.constraint(equalTo: stack.widthAnchor, multiplier: 0.12).isActive = true
             }
             for (column, character) in line.enumerated() {
                 let value = String(character)
@@ -365,10 +365,10 @@ final class KeyboardViewController: UIInputViewController {
             if index == 2 {
                 let delete = button("⌫") { [weak self] in self?.deleteCharacter() }
                 delete.accessibilityLabel = "Delete"
-                delete.widthAnchor.constraint(equalTo: stack.widthAnchor, multiplier: 0.12).isActive = true
                 delete.addTarget(self, action: #selector(startDeleting(_:)), for: .touchDown)
                 delete.addTarget(self, action: #selector(stopDeleting), for: [.touchUpInside, .touchUpOutside, .touchCancel, .touchDragExit])
                 stack.addArrangedSubview(delete)
+                delete.widthAnchor.constraint(equalTo: stack.widthAnchor, multiplier: 0.12).isActive = true
             }
         }
         let bottom = row(height: keyHeight)
